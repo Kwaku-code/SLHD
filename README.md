@@ -1,0 +1,1 @@
+This project provides a solution to the problem of statistical learning in high dimensions, Specifically given some data of genes, the project uses the lasso regression to find genes that best explains the causation of eyes diseases in patients.
