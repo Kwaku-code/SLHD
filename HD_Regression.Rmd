@@ -1,0 +1,117 @@
+---
+title: "HD_Regression_Exam"
+author: "Kwaku"
+date: "March 20, 2024"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Data
+
+```{r}
+load(url("https://pamattei.github.io/exam_data.Rdata"))
+```
+
+
+```{r}
+library("seedCCA")
+library("glmnet")
+library("MASS")
+```
+
+We define and scaled X 
+
+```{r}
+
+Xtrain_mean = apply(Xtrain, 2, mean)
+Xtrain_sd = apply(Xtrain, 2, sd)
+Xtrain_scaled = scale(Xtrain, center = Xtrain_mean, scale = Xtrain_sd)
+
+Xtest_scaled = scale(Xtest, center = Xtrain_mean, scale = Xtrain_sd)
+
+#Ytrain_mean = mean(Ytrain)
+#Ytrain_sd = sd(Ytrain)
+#Ytrain_scaled = scale(Ytrain, center = Ytrain_mean, scale = Ytrain_sd)
+
+
+```
+
+We try to fit the lasso
+```{r}
+lambda_grid = exp(seq(-10,-3, length.out = 100))
+lasso = glmnet(Xtrain_scaled,Ytrain, lambda = lambda_grid)
+plot(lasso)
+```
+
+The coefficients are zero in the beginning and they branch out to different values
+
+We can do cross validation to find the best lambda
+```{r}
+lassocv = cv.glmnet(Xtrain_scaled,Ytrain,lambda=lambda_grid)
+plot(lassocv)
+```
+
+This provides the best lambda
+```{r}
+lassocv$lambda.min
+```
+
+We fit the lasso regression with the best lambda (0.00912288)
+```{r}
+lasso_lambamin = glmnet(Xtrain_scaled,Ytrain,lambda = lassocv$lambda.min)
+```
+
+We make prediction for the Y given new data Xtest
+```{r}
+yhat = predict(lasso_lambamin, newx = Xtest_scaled)
+mean((yhat - Ytest)^2) 
+```
+```{r}
+yhat
+```
+
+```{r}
+save(yhat, file = "C:/Users/DELL/Downloads/lasso_predictions.Rdata")
+```
+
+Shows the genes that are important in determining the eye diseases. Only the coefficients that are non zero are the features that are important in determining eye disease. A good reason for choosing lasso is its ability to provide minimum nuber of parameters that are important in predicting the dependent variable and thereby increasing convergence rate to the minimizer as well improving optimization problem
+
+```{r}
+coef(lasso_lambamin) # weights of the model after training, many of them are zeros
+```
+
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
